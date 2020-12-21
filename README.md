@@ -1,0 +1,1 @@
+# Softverske-komponente-2

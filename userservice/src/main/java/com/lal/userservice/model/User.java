@@ -25,9 +25,19 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private String passportNumber;
+
     @OneToMany(mappedBy = "user")
     List<CreditCard> creditCards = new ArrayList<>();
 
     private boolean isEnabled;
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

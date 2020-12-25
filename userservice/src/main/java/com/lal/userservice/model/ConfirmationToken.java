@@ -19,6 +19,8 @@ public class ConfirmationToken {
 
     private String confirmationToken;
 
+    private String emailToSet;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
 

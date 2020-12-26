@@ -2,8 +2,10 @@ package com.lal.userservice.service.impl;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.lal.userservice.model.ConfirmationToken;
+import com.lal.userservice.model.CreditCard;
 import com.lal.userservice.model.User;
 import com.lal.userservice.repository.ConfirmationTokenRepository;
+import com.lal.userservice.repository.CreditCardRepository;
 import com.lal.userservice.repository.UserRepository;
 import com.lal.userservice.service.EmailSenderService;
 import com.lal.userservice.service.UserService;
@@ -12,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
 import static com.lal.userservice.security.SecurityConstants.*;
 
 @Service
@@ -26,10 +31,14 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private EmailSenderService emailSenderService;
 
-    public UserServiceImpl(UserRepository userRepository, ConfirmationTokenRepository confirmationTokenRepository)
+    @Autowired
+    private CreditCardRepository creditCardRepository;
+
+    public UserServiceImpl(UserRepository userRepository, ConfirmationTokenRepository confirmationTokenRepository, CreditCardRepository creditCardRepository)
     {
         this.userRepository = userRepository;
         this.confirmationTokenRepository = confirmationTokenRepository;
+        this.creditCardRepository = creditCardRepository;
     }
 
     @Override
@@ -47,6 +56,8 @@ public class UserServiceImpl implements UserService {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             String encodedPassword = encoder.encode(user.getPassword());
             user.setPassword(encodedPassword);
+            user.setMiles(0);
+            user.setRank("BRONZE");
             userRepository.save(user);
 
 
@@ -133,5 +144,31 @@ public class UserServiceImpl implements UserService {
 
 
         return null;
+    }
+
+    @Override
+    public void addCreditCard(CreditCard creditCard, String token) {
+        String email = JWT.require(Algorithm.HMAC512(SECRET.getBytes())).build()
+                .verify(token.replace(TOKEN_PREFIX, "")).getSubject();
+        User user = userRepository.findByEmailIgnoreCase(email);
+        creditCard.setUser(user);
+        creditCardRepository.save(creditCard);
+        System.out.println("CrediCard added");
+    }
+
+    @Override
+    public void updateMilesAndRank(int miles, String token) {
+
+        String email = JWT.require(Algorithm.HMAC512(SECRET.getBytes())).build()
+                .verify(token.replace(TOKEN_PREFIX, "")).getSubject();
+        User user = userRepository.findByEmailIgnoreCase(email);
+        int newMiles = user.getMiles()+miles;
+        if((newMiles>1000)&&(newMiles<=10000))
+            user.setRank("SILVER");
+        else if(newMiles>10000)
+            user.setRank("GOLD");
+        user.setMiles(newMiles);
+        userRepository.save(user);
+        System.out.println("Miles and rank updated");
     }
 }

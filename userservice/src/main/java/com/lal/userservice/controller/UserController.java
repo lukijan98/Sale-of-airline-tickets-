@@ -1,5 +1,6 @@
 package com.lal.userservice.controller;
 
+import com.lal.userservice.model.CreditCard;
 import com.lal.userservice.model.User;
 import com.lal.userservice.service.UserService;
 
@@ -36,6 +37,18 @@ public class UserController {
     public void confirmUserAccount(@RequestParam("token")String confirmationToken)
     {
         userService.confirm(confirmationToken);
+    }
+
+    @PostMapping(value="/addcreditcard",consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public void addCreditCard(@RequestBody CreditCard creditCard, @RequestHeader(value = HEADER_STRING) String token){
+         userService.addCreditCard(creditCard,token);
+    }
+
+    @PostMapping(value="/updatemilesandrank",consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public void updateUser(@RequestBody int miles,@RequestHeader(value = HEADER_STRING) String token){
+        userService.updateMilesAndRank(miles,token);
     }
 
 }

@@ -28,7 +28,14 @@ public class User {
     @Column(nullable = false)
     private String passportNumber;
 
-    @OneToMany(mappedBy = "user")
+    @Column
+    private String rank;
+
+    @Column
+    private int miles;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
     List<CreditCard> creditCards = new ArrayList<>();
 
     private boolean isEnabled;
@@ -40,4 +47,5 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
 }

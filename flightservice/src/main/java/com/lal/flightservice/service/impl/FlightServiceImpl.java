@@ -4,11 +4,15 @@ import com.lal.flightservice.model.Airplane;
 import com.lal.flightservice.model.Flight;
 import com.lal.flightservice.repository.FlightRepository;
 import com.lal.flightservice.service.FlightService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jms.JmsException;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +21,10 @@ import java.util.Optional;
 public class FlightServiceImpl implements FlightService {
     
     private FlightRepository flightRepository;
+    @Autowired
+    JmsTemplate jmsTemplate;
+    @Autowired
+    Queue userserviceQueue;
     
     public FlightServiceImpl(FlightRepository flightRepository){
         this.flightRepository = flightRepository;
@@ -70,7 +78,15 @@ public class FlightServiceImpl implements FlightService {
 
     @Override
     public void deleteById(Long id) {
-        flightRepository.deleteById(id);
+
+        try{
+            jmsTemplate.convertAndSend(userserviceQueue, Long.toString(id));
+
+            flightRepository.deleteById(id);
+        } catch (JmsException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override

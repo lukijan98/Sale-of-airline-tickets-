@@ -9,11 +9,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/flightservice/flight")
+@RequestMapping("/flight")
 public class FlightController {
 
     private FlightServiceImpl flightService;
@@ -68,5 +70,25 @@ public class FlightController {
                                @RequestParam(required = false) Integer miles,
                                @RequestParam(required = false) Integer price){
         return flightService.search(airplaneName,origin,destination,miles,price);
+    }
+
+    @PostMapping(value = "/checkCapacity",consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> checkCapacity(@RequestHeader int nbSoldTickets,@RequestHeader Long flightId){
+        boolean check = false;
+        Optional<Flight> optionalFlight = flightService.findById(flightId);
+        int price = 0;
+        if(optionalFlight.isPresent()) {
+            Flight flight = optionalFlight.get();
+            int capacity = flight.getAirplane().getCapacity();
+            price = flight.getPrice();
+            if (capacity>nbSoldTickets) {
+                check = true;
+            } else check = false;
+        }
+        Map<String,Object> map = new HashMap<>();
+        map.put("checkCapacity",check);
+        map.put("price",price);
+        return new ResponseEntity<Map<String,Object>>(map,new HttpHeaders(), HttpStatus.OK);
     }
 }

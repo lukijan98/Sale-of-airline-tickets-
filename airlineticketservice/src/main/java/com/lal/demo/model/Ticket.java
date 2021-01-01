@@ -24,17 +24,11 @@ public class Ticket {
 
     private String date;
 
-    public Ticket(Long userId, Long flightId)
+    public Ticket()
     {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         this.date = dtf.format(now);
-        this.userId = userId;
-        this.flightId = flightId;
     }
 
-
-    public Ticket() {
-
-    }
 }

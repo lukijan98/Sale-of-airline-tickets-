@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/flightservice/airplane")
+@RequestMapping("/airplane")
 public class AirplaneController {
 
     private AirplaneServiceImpl airplaneService;

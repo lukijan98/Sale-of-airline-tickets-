@@ -171,4 +171,11 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         System.out.println("Miles and rank updated");
     }
+
+    @Override
+    public Optional<User> findUserById(Long id) {
+        return userRepository.findById(id);
+    }
+
+
 }

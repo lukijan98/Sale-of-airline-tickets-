@@ -2,6 +2,7 @@ package com.lal.flightservice.service;
 
 import com.lal.flightservice.model.Airplane;
 import com.lal.flightservice.model.Flight;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,5 +14,6 @@ public interface FlightService {
     Flight update(Flight flight);
     void deleteById(Long id);
     List<Flight> search(String airplaneName, String origin, String destination,
-                        Integer miles, Integer price);
+                        Integer miles, Integer price,Boolean flightCanceled);
+    List<Flight> findAllByFlightCanceledFalse(Integer pageNo, Integer pageSize);
 }

@@ -24,11 +24,14 @@ public class Ticket {
 
     private String date;
 
+    private boolean ticketCanceled;
+
     public Ticket()
     {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         this.date = dtf.format(now);
+        ticketCanceled = false;
     }
 
 }

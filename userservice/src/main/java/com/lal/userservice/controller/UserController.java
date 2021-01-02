@@ -56,8 +56,9 @@ public class UserController {
 
     @PostMapping(value="/updatemilesandrank",consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public void updateUser(@RequestBody int miles,@RequestHeader(value = HEADER_STRING) String token){
+    public ResponseEntity<?> updateUser(@RequestHeader int miles,@RequestHeader(value = HEADER_STRING) String token){
         userService.updateMilesAndRank(miles,token);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/userInfo",consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -72,8 +73,13 @@ public class UserController {
             rank = user.getRank();
         }
         Map<String,Object> map = new HashMap<>();
-        map.put("creditCards",creditCards);
-        map.put("rank",rank);
+        if(!creditCards.isEmpty()) {
+            map.put("hasCreditCards", true);
+            map.put("rank", rank);
+        }else {
+            map.put("hasCreditCards", false);
+            map.put("rank", rank);
+        }
         return new ResponseEntity<Map<String,Object>>(map,new HttpHeaders(), HttpStatus.OK);
     }
 

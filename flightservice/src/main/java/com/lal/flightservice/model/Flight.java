@@ -13,7 +13,7 @@ public class Flight {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "AIRPLANE", referencedColumnName = "ID")
+    @JoinColumn(name = "AIRPLANE", referencedColumnName = "ID",nullable = false)
     private Airplane airplane;
 
     @Column(nullable = false)
@@ -27,4 +27,15 @@ public class Flight {
 
     @Column(nullable = false)
     private int price;
+
+    @Column(name="flightSeats")
+    private int availableSeats;
+
+    @Column(name = "flightCanceled",nullable = false)
+    private boolean flightCanceled;
+
+    public Flight(){
+        flightCanceled = false;
+    }
+
 }

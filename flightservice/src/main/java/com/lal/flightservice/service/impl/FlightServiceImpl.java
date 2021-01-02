@@ -50,6 +50,7 @@ public class FlightServiceImpl implements FlightService {
 
     @Override
     public Flight save(Flight flight) {
+        flight.setAvailableSeats(flight.getAirplane().getCapacity());
         return flightRepository.save(flight);
     }
 
@@ -73,6 +74,12 @@ public class FlightServiceImpl implements FlightService {
         if(flight.getPrice()!=0){
             oldFlight.setOrigin(flight.getOrigin());
         }
+        if(flight.getAvailableSeats()!=0){
+            oldFlight.setAvailableSeats(flight.getAvailableSeats());
+        }
+        if(flight.isFlightCanceled()!=false){
+            oldFlight.setFlightCanceled(flight.isFlightCanceled());
+        }
         return flightRepository.save(oldFlight);
     }
 
@@ -90,8 +97,22 @@ public class FlightServiceImpl implements FlightService {
     }
 
     @Override
-    public List<Flight> search(String airplaneName, String origin, String destination, Integer miles, Integer price) {
-        return flightRepository.findByAirplaneNameAndOriginAndDestinationAndMilesAndPrice(airplaneName,origin,destination,
-                                                                                        miles,price);
+    public List<Flight> search(String airplaneName, String origin, String destination, Integer miles, Integer price,
+                               Boolean flightCanceled) {
+        return flightRepository.findByAirplaneNameAndOriginAndDestinationAndMilesAndPriceAndFlightCanceled(airplaneName,origin,destination,
+                                                                                        miles,price,flightCanceled);
+    }
+
+    @Override
+    public List<Flight> findAllByFlightCanceledFalse(Integer pageNo, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNo,pageSize);
+
+        Page<Flight> pagedResult = flightRepository.findAllByFlightCanceledFalse(paging);
+
+        if(pagedResult.hasContent()){
+            return pagedResult.getContent();
+        }else{
+            return new ArrayList<Flight>();
+        }
     }
 }

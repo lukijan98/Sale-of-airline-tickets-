@@ -29,7 +29,7 @@ public class TicketController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> buyTicket(@RequestBody Ticket ticket,@RequestHeader(value = "Authorization") String token){
         ObjectMapper objectMapper = new ObjectMapper();
-        int nbSoldTickets = ticketService.countTicketByFlightId(ticket.getFlightId());
+        //int nbSoldTickets = ticketService.countTicketByFlightId(ticket.getFlightId());
         CloseableHttpClient client = HttpClients.createDefault();
         CloseableHttpResponse response = null;
         String flightserviceUri=null;
@@ -57,16 +57,18 @@ public class TicketController {
         HttpPost httpPost = new HttpPost("http://localhost:8762"+flightserviceUri+"flight/checkCapacity");
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
-        httpPost.setHeader("nbSoldTickets",Integer.toString(nbSoldTickets));
+        //httpPost.setHeader("nbSoldTickets",Integer.toString(nbSoldTickets));
         httpPost.setHeader("flightId",Long.toString(ticket.getFlightId()));
         boolean checkCapacity=false;
-        int price;
+        double price=0;
+        int miles=0;
         try {
             response = client.execute(httpPost);
             String result = EntityUtils.toString(response.getEntity());
             Map<String, Object> map = objectMapper.readValue(result, Map.class);
             checkCapacity = (boolean) map.get("checkCapacity");
             price = (int) map.get("price");
+            miles = (int) map.get("miles");
             System.out.println("ima mesta i cena je " + checkCapacity + price);
         } catch (IOException e) {
             e.printStackTrace();
@@ -78,12 +80,48 @@ public class TicketController {
             httpPost1.setHeader("Authorization","Bearer "+token);
             httpPost1.setHeader("userId",Long.toString(ticket.getUserId()));
             String rank = null;
-            String creditCards = null;
+            boolean hasCreditCards = false;
             try {
                 response = client.execute(httpPost1);
                 String result = EntityUtils.toString(response.getEntity());
-                Map<String, String> map = objectMapper.readValue(result, Map.class);
-
+                Map<String, Object> map = objectMapper.readValue(result, Map.class);
+                hasCreditCards = (boolean) map.get("hasCreditCards");
+                rank = (String) map.get("rank");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if(hasCreditCards){
+                switch (rank){
+                    case "GOLD":
+                        price = price * 0.8;
+                        break;
+                    case "SILVER":
+                        price = price * 0.9;
+                        break;
+                }
+            }
+            System.out.println("NOVA CENA JE " + price);
+            HttpPost httpPost2 = new HttpPost("http://localhost:8762"+flightserviceUri+"flight/updateCapacity");
+            httpPost2.setHeader("Accept", "application/json");
+            httpPost2.setHeader("Content-type", "application/json");
+            httpPost2.setHeader("flightId",Long.toString(ticket.getFlightId()));
+            try {
+                response = client.execute(httpPost2);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            HttpPost httpPost3 = new HttpPost("http://localhost:8762"+userserviceUri+"updatemilesandrank");
+            httpPost3.setHeader("Accept", "application/json");
+            httpPost3.setHeader("Content-type", "application/json");
+            httpPost3.setHeader("Authorization","Bearer "+token);
+            httpPost3.setHeader("miles",Integer.toString(miles));
+            try {
+                response = client.execute(httpPost3);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                client.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

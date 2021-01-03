@@ -1,18 +1,23 @@
 package com.lal.flightservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lal.flightservice.model.Airplane;
 import com.lal.flightservice.model.Flight;
 import com.lal.flightservice.service.impl.FlightServiceImpl;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/flight")
@@ -43,10 +48,52 @@ public class FlightController {
                 posalti mejl useru da je otkazan let i oduzeti mu milje
 
                  */
+                ObjectMapper objectMapper = new ObjectMapper();
+                CloseableHttpClient client = HttpClients.createDefault();
+                CloseableHttpResponse response = null;
+                String airlineticketserviceUri=null;
+                HttpPost zuul = new HttpPost("http://localhost:8762/actuator/routes");
+                try {
+                    response = client.execute(zuul);
+                    String result = EntityUtils.toString(response.getEntity());
+                    Map<String, String> map = objectMapper.readValue(result, Map.class);
+                    for (Map.Entry<String, String> entry : map.entrySet()) {
+                        if (entry.getValue().equals("airlineticketservice")) {
+                            airlineticketserviceUri=entry.getKey();
+                        }
+                    }
+                    airlineticketserviceUri = airlineticketserviceUri.replace("**","");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                HttpGet httpPost3 = new HttpGet("http://localhost:8762"+airlineticketserviceUri+"getUsers?id="+flight.getId());
+                httpPost3.setHeader("Accept", "application/json");
+                httpPost3.setHeader("Content-type", "application/json");
+
+                try {
+                    response = client.execute(httpPost3);
+                    String result = EntityUtils.toString(response.getEntity());
+                    Map<String, List<Integer> >map = objectMapper.readValue(result, Map.class);
+                    List<Integer> userIds = map.get("userIds");
+                    System.out.println(userIds.getClass());
+                    for(Integer ida:userIds)
+                       flightService.cancelById(ida.longValue(),flight.getMiles());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    client.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
                 flight.setFlightCanceled(true);
                 flightService.update(flight);
             }
-            //flightService.deleteById(id);
+
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();

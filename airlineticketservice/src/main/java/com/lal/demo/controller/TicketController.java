@@ -8,11 +8,15 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -115,6 +119,7 @@ public class TicketController {
             httpPost3.setHeader("Content-type", "application/json");
             httpPost3.setHeader("Authorization","Bearer "+token);
             httpPost3.setHeader("miles",Integer.toString(miles));
+            ticketService.save(ticket);
             try {
                 response = client.execute(httpPost3);
             } catch (IOException e) {
@@ -137,4 +142,20 @@ public class TicketController {
 //
 //        return new ResponseEntity<List<Flight>>(list,new HttpHeaders(), HttpStatus.OK);
 //    }
+
+        @GetMapping(value = "/getUsers",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUsersByFlight(@RequestParam Long id)
+    {
+        List<Ticket> list = ticketService.findAllByFlightId(id);
+        List<String> userIds = new ArrayList<>();
+        for(Ticket t: list)
+        {
+            userIds.add(Long.toString(t.getUserId()));
+        }
+        Map<String,List<String>> map = new HashMap<>();
+        map.put("userIds",userIds);
+
+        return new ResponseEntity<Map<String,List<String>>>(map,new HttpHeaders(), HttpStatus.OK);
+    }
 }

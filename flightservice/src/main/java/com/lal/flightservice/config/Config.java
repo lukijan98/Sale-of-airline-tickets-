@@ -18,6 +18,10 @@ public class Config {
     public Queue userserviceQueue() {
         return new ActiveMQQueue("userservice.queue");
     }
+    @Bean
+    public Queue airlineticketserviceQueue() {
+        return new ActiveMQQueue("airlineticketservice.queue");
+    }
 
     @Bean
     public ActiveMQConnectionFactory activeMQConnectionFactory() {

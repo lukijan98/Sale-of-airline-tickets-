@@ -5,6 +5,8 @@ import com.lal.demo.repository.TicketRepository;
 import com.lal.demo.service.TicketService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TicketServiceImpl implements TicketService {
 
@@ -22,5 +24,10 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public int countTicketByFlightId(Long flightId) {
         return ticketRepository.countTicketByFlightId(flightId);
+    }
+
+    @Override
+    public List<Ticket> findAllByFlightId(Long flightid) {
+        return ticketRepository.findAllByFlightId(flightid);
     }
 }

@@ -13,9 +13,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class FlightServiceImpl implements FlightService {
@@ -84,12 +82,14 @@ public class FlightServiceImpl implements FlightService {
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void cancelById(Long id, int miles) {
 
+        Map<String,Integer> map = new HashMap<>();
+        map.put(Long.toString(id),miles);
         try{
-            jmsTemplate.convertAndSend(userserviceQueue, Long.toString(id));
+            jmsTemplate.convertAndSend(userserviceQueue, map);
 
-            flightRepository.deleteById(id);
+            //flightRepository.deleteById(id);
         } catch (JmsException e) {
             e.printStackTrace();
         }

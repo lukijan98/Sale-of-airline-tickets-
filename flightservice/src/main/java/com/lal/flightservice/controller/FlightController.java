@@ -74,11 +74,11 @@ public class FlightController {
                 try {
                     response = client.execute(httpPost3);
                     String result = EntityUtils.toString(response.getEntity());
-                    Map<String, List<Integer> >map = objectMapper.readValue(result, Map.class);
-                    List<Integer> userIds = map.get("userIds");
+                    Map<String, List<String> >map = objectMapper.readValue(result, Map.class);
+                    List<String> userIds = map.get("userIds");
                     System.out.println(userIds.getClass());
-                    for(Integer ida:userIds)
-                       flightService.cancelById(ida.longValue(),flight.getMiles());
+                    for(String ida:userIds)
+                       flightService.cancelById(ida,flight.getMiles());
 
                 } catch (IOException e) {
                     e.printStackTrace();

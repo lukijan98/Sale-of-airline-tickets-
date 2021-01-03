@@ -82,10 +82,10 @@ public class FlightServiceImpl implements FlightService {
     }
 
     @Override
-    public void cancelById(Long id, int miles) {
+    public void cancelById(String id, int miles) {
 
         Map<String,Integer> map = new HashMap<>();
-        map.put(Long.toString(id),miles);
+        map.put(id,miles);
         try{
             jmsTemplate.convertAndSend(userserviceQueue, map);
 

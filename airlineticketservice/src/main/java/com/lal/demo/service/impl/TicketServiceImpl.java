@@ -30,4 +30,9 @@ public class TicketServiceImpl implements TicketService {
     public List<Ticket> findAllByFlightId(Long flightid) {
         return ticketRepository.findAllByFlightId(flightid);
     }
+
+    @Override
+    public List<Ticket> findAllByUserIdOrderByDateDesc(Long userId) {
+        return ticketRepository.findAllByUserIdOrderByDateDesc(userId);
+    }
 }

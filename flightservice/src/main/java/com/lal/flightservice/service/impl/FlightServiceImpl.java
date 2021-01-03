@@ -23,7 +23,10 @@ public class FlightServiceImpl implements FlightService {
     JmsTemplate jmsTemplate;
     @Autowired
     Queue userserviceQueue;
-    
+
+    @Autowired
+    Queue airlineticketserviceQueue;
+
     public FlightServiceImpl(FlightRepository flightRepository){
         this.flightRepository = flightRepository;
     }
@@ -82,13 +85,13 @@ public class FlightServiceImpl implements FlightService {
     }
 
     @Override
-    public void cancelById(String id, int miles) {
+    public void cancelById(String userId, int miles, long flightId) {
 
         Map<String,Integer> map = new HashMap<>();
-        map.put(id,miles);
+        map.put(userId,miles);
         try{
             jmsTemplate.convertAndSend(userserviceQueue, map);
-
+            jmsTemplate.convertAndSend(airlineticketserviceQueue, Long.toString(flightId));
             //flightRepository.deleteById(id);
         } catch (JmsException e) {
             e.printStackTrace();

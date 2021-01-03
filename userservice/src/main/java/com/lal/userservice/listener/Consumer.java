@@ -15,8 +15,6 @@ import java.util.Optional;
 public class Consumer {
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private EmailSenderService emailSenderService;
     @Autowired
     private UserRepository userRepository;

@@ -78,7 +78,7 @@ public class FlightController {
                     List<String> userIds = map.get("userIds");
                     System.out.println(userIds.getClass());
                     for(String ida:userIds)
-                       flightService.cancelById(ida,flight.getMiles());
+                       flightService.cancelById(ida,flight.getMiles(), flight.getId());
 
                 } catch (IOException e) {
                     e.printStackTrace();

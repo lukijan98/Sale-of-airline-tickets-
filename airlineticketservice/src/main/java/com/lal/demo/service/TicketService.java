@@ -11,4 +11,5 @@ public interface TicketService {
     int countTicketByFlightId(Long flightId);
 
     List<Ticket> findAllByFlightId(Long flightid);
+    List<Ticket> findAllByUserIdOrderByDateDesc(Long userId);
 }

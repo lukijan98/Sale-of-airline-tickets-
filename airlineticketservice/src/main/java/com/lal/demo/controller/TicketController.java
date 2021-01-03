@@ -134,14 +134,14 @@ public class TicketController {
         return ResponseEntity.ok().build();
     }
 
-//    @GetMapping(value = "/getTickets",
-//            produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<List<Ticket>> getAllTickets()
-//    {
-//        List<Ticket> list = flightService.findAllFlights(pageNo,pageSize);
-//
-//        return new ResponseEntity<List<Flight>>(list,new HttpHeaders(), HttpStatus.OK);
-//    }
+    @GetMapping(value = "/getTickets",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Ticket>> getAllTickets(@RequestParam Long id)
+    {
+        List<Ticket> list = ticketService.findAllByUserIdOrderByDateDesc(id);
+
+        return new ResponseEntity<List<Ticket>>(list,new HttpHeaders(), HttpStatus.OK);
+    }
 
         @GetMapping(value = "/getUsers",
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -158,4 +158,7 @@ public class TicketController {
 
         return new ResponseEntity<Map<String,List<String>>>(map,new HttpHeaders(), HttpStatus.OK);
     }
+
+
+
 }

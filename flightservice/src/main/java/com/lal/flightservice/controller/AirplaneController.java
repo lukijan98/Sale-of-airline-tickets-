@@ -2,6 +2,7 @@ package com.lal.flightservice.controller;
 
 import com.lal.flightservice.model.Airplane;
 import com.lal.flightservice.service.impl.AirplaneServiceImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,11 +22,12 @@ public class AirplaneController {
 
     @PostMapping(value="/add",consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Airplane saveFlight(@RequestBody Airplane airplane){ return airplaneService.save(airplane); }
+    public ResponseEntity<?> saveAirplane(@RequestBody Airplane airplane){ return new ResponseEntity<>(airplaneService.save(airplane), HttpStatus.CREATED);}
+
 
     @PutMapping(value="/update",consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Airplane updateFlight(@RequestBody Airplane airplane){ return airplaneService.update(airplane); }
+    public ResponseEntity<?> updateAirplane(@RequestBody Airplane airplane){ return new ResponseEntity<>(airplaneService.update(airplane),HttpStatus.OK); }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteAirplane(@PathVariable Long id){
@@ -38,7 +40,7 @@ public class AirplaneController {
     }
     
     @GetMapping(value = "/all",produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Airplane> findAllAirplanes(){ return airplaneService.findAllAirplanes(); }
+    public ResponseEntity<?> findAllAirplanes(){ return new ResponseEntity<>(airplaneService.findAllAirplanes(),HttpStatus.OK); }
     
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findAirplaneById(@RequestParam Long id){

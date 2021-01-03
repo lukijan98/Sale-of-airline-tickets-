@@ -38,7 +38,7 @@ public class AirplaneServiceImpl implements AirplaneService {
 
     @Override
     public List<Airplane> findAllAirplanes() {
-        return (List<Airplane>)airplaneRepository.findAll();
+        return (List<Airplane>) airplaneRepository.findAll();
     }
 
     @Override

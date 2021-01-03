@@ -12,7 +12,7 @@ public interface FlightService {
     Optional<Flight> findById(Long id);
     Flight save(Flight flight);
     Flight update(Flight flight);
-    void cancelById(String id, int miles);
+    void cancelById(String userId, int miles, long flightId);
     List<Flight> search(String airplaneName, String origin, String destination,
                         Integer miles, Integer price,Boolean flightCanceled);
     List<Flight> findAllByFlightCanceledFalse(Integer pageNo, Integer pageSize);

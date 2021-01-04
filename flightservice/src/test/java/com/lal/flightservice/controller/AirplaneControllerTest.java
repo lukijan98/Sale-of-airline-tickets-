@@ -2,8 +2,6 @@ package com.lal.flightservice.controller;
 
 import com.lal.flightservice.model.Airplane;
 import com.lal.flightservice.repository.AirplaneRepository;
-import com.lal.flightservice.wrapper.AirplaneListWrapper;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +17,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -67,13 +67,13 @@ public class FlightServiceImpl implements FlightService {
             oldFlight.setOrigin(flight.getOrigin());
         }
         if(flight.getDestination()!=null){
-            oldFlight.setOrigin(flight.getOrigin());
+            oldFlight.setDestination(flight.getDestination());
         }
         if(flight.getMiles()!=0){
-            oldFlight.setOrigin(flight.getOrigin());
+            oldFlight.setMiles(flight.getMiles());
         }
         if(flight.getPrice()!=0){
-            oldFlight.setOrigin(flight.getOrigin());
+            oldFlight.setPrice(flight.getPrice());
         }
         if(flight.getAvailableSeats()!=0){
             oldFlight.setAvailableSeats(flight.getAvailableSeats());

@@ -31,11 +31,11 @@ public class FlightController {
 
     @PostMapping(value="/add",consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Flight saveFlight(@RequestBody Flight flight){ return flightService.save(flight); }
+    public ResponseEntity<?> saveFlight(@RequestBody Flight flight){ return new ResponseEntity<>(flightService.save(flight),HttpStatus.CREATED); }
 
     @PutMapping(value="/update",consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Flight updateFlight(@RequestBody Flight flight){ return flightService.update(flight); }
+    public ResponseEntity<?> updateFlight(@RequestBody Flight flight){ return new ResponseEntity<>(flightService.update(flight),HttpStatus.OK); }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteFlight(@PathVariable Long id){
@@ -104,13 +104,9 @@ public class FlightController {
     public ResponseEntity<List<Flight>> getAllFlights(@RequestParam(defaultValue = "0") Integer pageNo,
                                                       @RequestParam(defaultValue = "10") Integer pageSize)
     {
-        //List<Flight> list = flightService.findAllFlights(pageNo,pageSize);
+
         List<Flight> list = flightService.findAllByFlightCanceledFalse(pageNo,pageSize);
-//        for(Flight flight:list){
-//            if(flight.isFlightCanceled()){
-//                list.remove(flight);
-//            }
-//        }
+
         return new ResponseEntity<List<Flight>>(list,new HttpHeaders(), HttpStatus.OK);
     }
 
@@ -126,13 +122,13 @@ public class FlightController {
 
     @GetMapping(value = "/search",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Flight> search(@RequestParam(required = false) String airplaneName,
+    public ResponseEntity<?> search(@RequestParam(required = false) String airplaneName,
                                @RequestParam(required = false) String origin,
                                @RequestParam(required = false) String destination,
                                @RequestParam(required = false) Integer miles,
                                @RequestParam(required = false) Integer price,
                                @RequestParam(required = false) Boolean flightCanceled){
-        return flightService.search(airplaneName,origin,destination,miles,price,flightCanceled);
+        return new ResponseEntity<>(flightService.search(airplaneName,origin,destination,miles,price,flightCanceled),HttpStatus.OK);
     }
 
     @PostMapping(value = "/checkCapacity",consumes = MediaType.APPLICATION_JSON_VALUE,

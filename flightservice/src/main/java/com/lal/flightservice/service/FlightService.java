@@ -16,4 +16,5 @@ public interface FlightService {
     List<Flight> search(String airplaneName, String origin, String destination,
                         Integer miles, Integer price,Boolean flightCanceled);
     List<Flight> findAllByFlightCanceledFalse(Integer pageNo, Integer pageSize);
+    List<Flight> searchTest(String origin,String destination,Integer miles,Integer price,Boolean flightCanceled);
 }

@@ -2,10 +2,16 @@ package com.lal.flightservice.controller;
 
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lal.flightservice.model.Airplane;
 import com.lal.flightservice.model.Flight;
 import com.lal.flightservice.repository.AirplaneRepository;
 import com.lal.flightservice.repository.FlightRepository;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,15 +19,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -231,8 +236,62 @@ public class FlightControllerTest {
         assertFlight(response.getBody().get(0), flight2.getId(),flight2.getOrigin(),flight2.getDestination(),flight2.getMiles(), flight2.getPrice(), flight2.getAirplane());
     }
 
+    @Test
+    public void testCheckCapacity(){
+        //given
+        Airplane airplane = new Airplane();
+        airplane.setName("Nikola Tesla");
+        airplane.setCapacity(32);
+        airplaneRepository.save(airplane);
 
+        Flight flight1 = new Flight();
+        flight1.setOrigin("Beograd");
+        flight1.setDestination("Nis");
+        flight1.setMiles(100);
+        flight1.setPrice(50);
+        flight1.setAirplane(airplane);
+        flightRepository.save(flight1);
 
+        String url = FLIGHT_URL+"/checkCapacity" + "?flightId="+flight1.getId();
+        //when
+        ResponseEntity<Map<String,Object>> response = testRestTemplate
+                .exchange(url, HttpMethod.POST, null, new ParameterizedTypeReference<Map<String,Object>>() {
+                });
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(((Boolean)response.getBody().get("checkCapacity"))).isEqualTo(false);
+        assertThat(((int)response.getBody().get("miles"))).isEqualTo(100);
+        assertThat(((int)response.getBody().get("price"))).isEqualTo(50);
+    }
+
+    @Test
+    public void testUpdateCapacity(){
+        //given
+        Airplane airplane = new Airplane();
+        airplane.setName("Nikola Tesla");
+        airplane.setCapacity(32);
+        airplaneRepository.save(airplane);
+
+        Flight flight1 = new Flight();
+        flight1.setOrigin("Beograd");
+        flight1.setDestination("Nis");
+        flight1.setMiles(100);
+        flight1.setPrice(50);
+        flight1.setAirplane(airplane);
+        flight1.setAvailableSeats(32);
+        flightRepository.save(flight1);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("flightId",Long.toString(flight1.getId()));
+        HttpEntity<String> entity = new HttpEntity<String>(null,headers);
+
+        String url = FLIGHT_URL+"/updateCapacity";
+
+        ResponseEntity<Flight> response = testRestTemplate
+                .exchange(url, HttpMethod.POST, entity, Flight.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().getAvailableSeats()).isEqualTo(flight1.getAvailableSeats()-1);
+    }
 
     private void assertFlight(Flight flight, Long id, String origin, String destination,int miles,int price,Airplane airplane){
         assertThat(flight.getId()).isEqualTo(id);

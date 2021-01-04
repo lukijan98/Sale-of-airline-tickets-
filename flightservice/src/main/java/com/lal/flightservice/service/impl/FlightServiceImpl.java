@@ -102,7 +102,7 @@ public class FlightServiceImpl implements FlightService {
     @Override
     public List<Flight> search(String airplaneName, String origin, String destination, Integer miles, Integer price,
                                Boolean flightCanceled) {
-        return flightRepository.findByAirplaneNameAndOriginAndDestinationAndMilesAndPriceAndFlightCanceled(airplaneName,origin,destination,
+        return flightRepository.findFlightsByAirplane_NameAndOriginAndDestinationAndMilesAndPriceAndFlightCanceled(airplaneName,origin,destination,
                                                                                         miles,price,flightCanceled);
     }
 
@@ -117,5 +117,10 @@ public class FlightServiceImpl implements FlightService {
         }else{
             return new ArrayList<Flight>();
         }
+    }
+
+    @Override
+    public List<Flight> searchTest(String origin,String destination,Integer miles,Integer price,Boolean flightCanceled) {
+        return flightRepository.findFlightsByOriginAndDestinationAndMilesAndPriceAndFlightCanceled(origin,destination,miles,price,flightCanceled);
     }
 }

@@ -128,12 +128,15 @@ public class FlightController {
                                @RequestParam(required = false) Integer miles,
                                @RequestParam(required = false) Integer price,
                                @RequestParam(required = false) Boolean flightCanceled){
+        System.out.println(airplaneName+" "+origin+" "+destination+" "+miles+" "+price+" "+flightCanceled);
         return new ResponseEntity<>(flightService.search(airplaneName,origin,destination,miles,price,flightCanceled),HttpStatus.OK);
+        //return new ResponseEntity<>(flightService.searchTest(origin,destination,miles,price,flightCanceled), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/checkCapacity",consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/checkCapacity",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> checkCapacity(@RequestHeader Long flightId){
+    public ResponseEntity<?> checkCapacity(@RequestParam Long flightId){
+        System.out.println("USAO");
         boolean check = false;
         Optional<Flight> optionalFlight = flightService.findById(flightId);
         int price = 0;
@@ -153,7 +156,7 @@ public class FlightController {
         return new ResponseEntity<Map<String,Object>>(map,new HttpHeaders(), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/updateCapacity",consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/updateCapacity",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateCapacity(@RequestHeader Long flightId){
         Optional<Flight> optionalFlight = flightService.findById(flightId);

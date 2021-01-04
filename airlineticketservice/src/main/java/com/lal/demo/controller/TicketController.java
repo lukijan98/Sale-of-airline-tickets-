@@ -58,11 +58,11 @@ public class TicketController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        HttpPost httpPost = new HttpPost("http://localhost:8762"+flightserviceUri+"flight/checkCapacity");
+        HttpPost httpPost = new HttpPost("http://localhost:8762"+flightserviceUri+"flight/checkCapacity?flightId="+Long.toString(ticket.getFlightId()));
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
         //httpPost.setHeader("nbSoldTickets",Integer.toString(nbSoldTickets));
-        httpPost.setHeader("flightId",Long.toString(ticket.getFlightId()));
+        //httpPost.setHeader("flightId",Long.toString(ticket.getFlightId()));
         boolean checkCapacity=false;
         double price=0;
         int miles=0;

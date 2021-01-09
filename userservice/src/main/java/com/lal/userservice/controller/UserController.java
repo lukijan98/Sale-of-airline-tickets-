@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -21,6 +24,8 @@ import static com.lal.userservice.security.SecurityConstants.*;
 
 @RestController
 //@RequestMapping("/user")
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class UserController {
 
     private UserService userService;
@@ -48,6 +53,7 @@ public class UserController {
         userService.confirm(confirmationToken);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping(value="/addcreditcard",consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public void addCreditCard(@RequestBody CreditCard creditCard, @RequestHeader(value = HEADER_STRING) String token){

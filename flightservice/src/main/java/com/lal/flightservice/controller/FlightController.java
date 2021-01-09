@@ -14,6 +14,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -21,6 +24,8 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/flight")
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class FlightController {
 
     private FlightServiceImpl flightService;
@@ -37,6 +42,7 @@ public class FlightController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateFlight(@RequestBody Flight flight){ return new ResponseEntity<>(flightService.update(flight),HttpStatus.OK); }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteFlight(@PathVariable Long id){
         Optional<Flight> optionalFlight = flightService.findById(id);

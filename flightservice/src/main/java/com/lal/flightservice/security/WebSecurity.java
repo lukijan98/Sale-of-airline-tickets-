@@ -1,7 +1,5 @@
-package com.lal.userservice.security;
+package com.lal.flightservice.security;
 
-import com.lal.userservice.repository.AdminRepository;
-import com.lal.userservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -15,32 +13,24 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import static com.lal.userservice.security.SecurityConstants.*;
 
 @EnableWebSecurity
 public class WebSecurity extends WebSecurityConfigurerAdapter {
 
-    private CustomAuthenticationProvider customAuthenticationProvider;
-    private BCryptPasswordEncoder encoder;
-    private UserRepository userRepo;
-    private AdminRepository adminRepository;
+
 
     @Autowired
-    public WebSecurity(CustomAuthenticationProvider customAuthenticationProvider, UserRepository userRepo,
-                       BCryptPasswordEncoder encoder,AdminRepository adminRepository) {
+    public WebSecurity() {
         super();
-        this.customAuthenticationProvider = customAuthenticationProvider;
-        this.userRepo = userRepo;
-        this.encoder = encoder;
-        this.adminRepository = adminRepository;
+
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http.cors().and().csrf().disable().authorizeRequests().antMatchers(LOGIN_PATH, REGISTRATION_PATH, CONFIRMATION_PATH).permitAll()
-                .anyRequest().authenticated().and().addFilter(new JWTAuthenticationFilter(authenticationManager()))
-                .addFilter(new JWTAuthorizationFilter(authenticationManager(), userRepo,adminRepository)).sessionManagement()
+        http.cors().and().csrf().disable().authorizeRequests().antMatchers("/**").permitAll()
+                .anyRequest().authenticated().and()
+                .addFilter(new JWTAuthorizationFilter(authenticationManager())).sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
@@ -56,10 +46,5 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         return source;
     }
 
-    @Override
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
 
-        customAuthenticationProvider.setEncoder(encoder);
-        auth.authenticationProvider(customAuthenticationProvider);
-    }
 }

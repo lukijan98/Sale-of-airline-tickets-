@@ -12,6 +12,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -21,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class TicketController {
 
     private TicketServiceImpl ticketService;
@@ -61,6 +65,7 @@ public class TicketController {
         HttpPost httpPost = new HttpPost("http://localhost:8762"+flightserviceUri+"flight/checkCapacity?flightId="+Long.toString(ticket.getFlightId()));
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
+        httpPost.setHeader("Authorization","Bearer "+token);
         //httpPost.setHeader("nbSoldTickets",Integer.toString(nbSoldTickets));
         //httpPost.setHeader("flightId",Long.toString(ticket.getFlightId()));
         boolean checkCapacity=false;
@@ -108,6 +113,7 @@ public class TicketController {
             HttpPost httpPost2 = new HttpPost("http://localhost:8762"+flightserviceUri+"flight/updateCapacity");
             httpPost2.setHeader("Accept", "application/json");
             httpPost2.setHeader("Content-type", "application/json");
+            httpPost2.setHeader("Authorization","Bearer "+token);
             httpPost2.setHeader("flightId",Long.toString(ticket.getFlightId()));
             try {
                 response = client.execute(httpPost2);

@@ -34,10 +34,12 @@ public class FlightController {
         this.flightService = flightService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value="/add",consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> saveFlight(@RequestBody Flight flight){ return new ResponseEntity<>(flightService.save(flight),HttpStatus.CREATED); }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value="/update",consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateFlight(@RequestBody Flight flight){ return new ResponseEntity<>(flightService.update(flight),HttpStatus.OK); }
@@ -48,6 +50,7 @@ public class FlightController {
         Optional<Flight> optionalFlight = flightService.findById(id);
         if(optionalFlight.isPresent()) {
             Flight flight = optionalFlight.get();
+            //ako je kupljena karta
             if(flight.getAvailableSeats()!=flight.getAirplane().getCapacity()){
                 /*
                 activeMq za povracaj novca
@@ -99,7 +102,9 @@ public class FlightController {
                 flight.setFlightCanceled(true);
                 flightService.update(flight);
             }
-
+            //ako nije kupljena karta
+            flight.setFlightCanceled(true);
+            flightService.update(flight);
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();

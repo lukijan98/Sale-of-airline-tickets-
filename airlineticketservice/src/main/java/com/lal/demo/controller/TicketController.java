@@ -3,18 +3,19 @@ package com.lal.demo.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lal.demo.model.Ticket;
 import com.lal.demo.service.impl.TicketServiceImpl;
+import io.github.resilience4j.decorators.Decorators;
+import io.github.resilience4j.retry.Retry;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,9 +29,12 @@ import java.util.Map;
 public class TicketController {
 
     private TicketServiceImpl ticketService;
+    private Retry retry;
+    private RestTemplate restTemplate = new RestTemplate();
 
-    public TicketController(TicketServiceImpl ticketService){
+    public TicketController(TicketServiceImpl ticketService, Retry retry){
         this.ticketService = ticketService;
+        this.retry = retry;
     }
 
     @PostMapping(value="/buyTicket",consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -62,26 +66,36 @@ public class TicketController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        HttpPost httpPost = new HttpPost("http://localhost:8762"+flightserviceUri+"flight/checkCapacity?flightId="+Long.toString(ticket.getFlightId()));
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("Content-type", "application/json");
-        httpPost.setHeader("Authorization","Bearer "+token);
+//        HttpPost httpPost = new HttpPost("http://localhost:8762"+flightserviceUri+"flight/checkCapacity?flightId="+Long.toString(ticket.getFlightId()));
+//        httpPost.setHeader("Accept", "application/json");
+//        httpPost.setHeader("Content-type", "application/json");
+//        httpPost.setHeader("Authorization","Bearer "+token);
         //httpPost.setHeader("nbSoldTickets",Integer.toString(nbSoldTickets));
         //httpPost.setHeader("flightId",Long.toString(ticket.getFlightId()));
-        boolean checkCapacity=false;
-        double price=0;
-        int miles=0;
-        try {
-            response = client.execute(httpPost);
-            String result = EntityUtils.toString(response.getEntity());
-            Map<String, Object> map = objectMapper.readValue(result, Map.class);
-            checkCapacity = (boolean) map.get("checkCapacity");
-            price = (int) map.get("price");
-            miles = (int) map.get("miles");
-            System.out.println("ima mesta i cena je " + checkCapacity + price);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization","Bearer "+token);
+        HttpEntity<String> entity = new HttpEntity<String>(null,headers);
+        String finalFlightserviceUri = flightserviceUri;
+        ResponseEntity<Map<String,Object>> odgovor = Decorators.ofSupplier(()-> {
+            System.out.println("Kupuje kartu za let "+ticket.getFlightId());
+            return restTemplate.exchange("http://localhost:8762" + finalFlightserviceUri + "flight/checkCapacity?flightId=" + Long.toString(ticket.getFlightId()),
+                    HttpMethod.POST, entity, new ParameterizedTypeReference<Map<String, Object>>() {
+                    });
+        }).withRetry(retry).get();
+        boolean checkCapacity=(Boolean)odgovor.getBody().get("checkCapacity");
+        double price=(int)odgovor.getBody().get("price");
+        int miles=(int)odgovor.getBody().get("miles");
+//        try {
+//            response = client.execute(httpPost);
+//            String result = EntityUtils.toString(response.getEntity());
+//            Map<String, Object> map = objectMapper.readValue(result, Map.class);
+//            checkCapacity = (boolean) map.get("checkCapacity");
+//            price = (int) map.get("price");
+//            miles = (int) map.get("miles");
+//            System.out.println("ima mesta i cena je " + checkCapacity + price);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         if(checkCapacity){
             HttpPost httpPost1 = new HttpPost("http://localhost:8762"+userserviceUri+"userInfo");
             httpPost1.setHeader("Accept", "application/json");
